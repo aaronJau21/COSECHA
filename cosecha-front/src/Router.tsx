@@ -1,37 +1,28 @@
-import { createBrowserRouter } from 'react-router-dom'
-import { Login } from './views/Auth/Login';
-import { Cosecha } from './layouts/Cosecha';
-import { Dashboard } from './views/Dashboard';
-import { Areas } from './views/Areas';
-import { ProtectedRoute } from './views/ProtectedRoute';
+import { createBrowserRouter } from "react-router-dom";
+import { Login } from "./views/Login";
+import { Cosecha } from "./layouts/Cosecha";
+import { Dashboard } from "./views/Dashboard";
+import { Areas } from "./views/Areas";
 
 const router = createBrowserRouter([
     {
-        path: '/login',
+        path: '/',
         element: <Login />
     },
-
     {
         path: '/',
-        element: <ProtectedRoute />,
+        element: <Cosecha />,
         children: [
             {
                 path: '/cosecha',
-                element: <Cosecha />,
-                children: [
-                    {
-                        index: true,
-                        element: <Dashboard />
-                    },
-                    {
-                        path: '/cosecha/areas',
-                        element: <Areas />
-                    }
-
-                ]
+                element: <Dashboard />
             },
+            {
+                path: '/cosecha/areas',
+                element: <Areas />
+            }
         ]
     }
-]);
+])
 
-export default router;
+export default router

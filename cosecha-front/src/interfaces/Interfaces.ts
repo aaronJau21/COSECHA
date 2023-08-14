@@ -8,9 +8,9 @@ export interface Client {
     email: string;
     business_name: string;
     service_id: number;
-    service_name?:string
-    area_id?:string
-    area_name?:string
+    service_name?: string
+    area_id?: string
+    area_name?: string
 }
 
 export interface Location {
@@ -18,13 +18,13 @@ export interface Location {
     name: string
 }
 
-export interface Service{
+export interface Service {
     id: string,
     name: string
 }
 
-export interface Area{
+export interface Area {
     id: string,
     name: string,
-    status:boolean | number
+    status: boolean | number
 }

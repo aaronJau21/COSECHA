@@ -1,9 +1,7 @@
-// $principal: #d21496;
-@import './variables.scss';
+@import "./variables.scss";
 $primary: $primario;
 $secondary: $secundario;
 $info: $info-dark;
-$dark:$dark-pink;
+$dark: $dark-pink;
 
 @import "../node_modules/bootstrap/scss/bootstrap.scss";
-

@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 export default function Sidebar(props: any) {
 
     const { location } = props
+    const { logout } = useAuth({ middleware: 'auth', url: '/cosecha' })
 
     return (
         <nav className="p-3">
@@ -33,7 +35,7 @@ export default function Sidebar(props: any) {
                     </Link>
                 </div>
 
-                <button className="btn btn-outline-danger text-white mt-3">Exit</button>
+                <button className="btn btn-outline-danger text-white mt-3" onClick={logout}>Exit</button>
             </nav>
         </nav>
     )
