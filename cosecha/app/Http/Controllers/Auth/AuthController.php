@@ -2,73 +2,78 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    public function store(Request $request)
+    public function register(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|min:10',
-            'userName' => 'required|unique:users,userName',
-            'password' => 'required|min:6'
+        $validate = Validator::make($request->all(), [
+            'name' => ['required', 'min:3'],
+            'user' => ['required', 'unique:users,user'],
+            'password' => ['required', 'min:3']
         ]);
 
-        if ($validator->fails()) {
+        if ($validate->fails()) {
             return new JsonResponse([
                 'status' => 400,
-                'msg' => 'Missing data',
-                'errors' => $validator->errors()
+                'errors' => $validate->errors()
             ], 400);
         }
 
         $user = User::create([
             'name' => $request->name,
-            'userName' => $request->userName,
-            'password' => bcrypt($request->password),
+            'user' => $request->user,
+            'password' => bcrypt($request->password)
         ]);
-
 
         return new JsonResponse([
             'status' => 200,
-            'msg' => 'User created successfully',
+            'token' =>  $user->createToken('authToken')->plainTextToken,
             'user' => $user
         ], 200);
     }
 
     public function login(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'userName' => 'required',
-            'password' => 'required'
+        $validate = Validator::make($request->all(), [
+            'user' => ['required'],
+            'password' => ['required']
         ]);
 
-        if ($validator->fails()) {
+        if ($validate->fails()) {
             return new JsonResponse([
                 'status' => 400,
-                'msg' => 'Missing data',
-                'errors' => $validator->errors()
+                'errors' => $validate->errors()
             ], 400);
         }
 
-        $user = User::where('userName', $request->userName)->first();
-
+        $user = User::where('user', $request->user)->first();
         if (!$user || !password_verify($request->password, $user->password)) {
             return new JsonResponse([
                 'status' => 401,
                 'msg' => 'Invalid credentials'
             ], 401);
-        }
+        };
 
         return new JsonResponse([
             'status' => 200,
-            'msg' => 'Login successful',
-            'user' => $user
+            'token' => $user->createToken('authToken')->plainTextToken,
+            'user' => $user,
         ], 200);
+    }
+
+    public function logout(Request $request)
+    {
+        $user = $request->user();
+        $user->currentAccessToken()->delete();
+
+        return [
+            'user' => null
+        ];
     }
 }

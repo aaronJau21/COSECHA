@@ -6,7 +6,6 @@ use App\Models\Area;
 use App\Models\Client;
 use App\Models\Location;
 use App\Models\Service;
-use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -19,8 +18,10 @@ class ClientController extends Controller
             'name' => 'required|min:10',
             'phone' => 'required|unique:clients,phone',
             'email' => 'required|unique:clients,email|email|min:10',
+            'location_id' => 'required',
+            'service_id' => 'required',
+            'area_id' => 'required'
         ]);
-
         if ($validator->fails()) {
             return new JsonResponse([
                 'status' => 400,
@@ -70,7 +71,6 @@ class ClientController extends Controller
             'status' => 200,
             'msg' => 'List Clients',
             'clients' => $clients,
-            // 'service' => $service
         ]);
     }
 
@@ -97,8 +97,8 @@ class ClientController extends Controller
 
         return new JsonResponse([
             'status' => 200,
-            'client' => $client,
-            'info' => [
+            // 'client' => $client,
+            'client' => [
                 'name' => $client->name,
                 'phone' => $client->phone,
                 'info' => $client->info,
@@ -128,9 +128,7 @@ class ClientController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'min:10',
             'phone' => 'unique:clients,phone,' . $id,
-            'info' => 'min:10',
             'email' => 'unique:clients,email,' . $id,
-            'business_name' => 'min:3',
         ]);
 
         if ($validator->fails()) {
@@ -176,6 +174,22 @@ class ClientController extends Controller
             'status' => 200,
             'msg' => 'Client Delete',
             'client' => $client
+        ]);
+    }
+
+    public function sharedAreas(Request $request)
+    {
+        $searchQuery = $request->input('area'); 
+
+        $areas = Area::where('name', 'LIKE', '%' . $searchQuery . '%')->get();
+        $areasId = $areas->pluck('id');
+
+        $clientsArea = Client::whereIn('area_id', $areasId)->get();
+
+        return new JsonResponse([
+            'status' => 200,
+            'msg' => 'Search results',
+            'clients' => $clientsArea
         ]);
     }
 }
