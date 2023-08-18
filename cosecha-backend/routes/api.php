@@ -47,3 +47,4 @@ Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 
 Route::get('/areas/shared', [ClientController::class, 'sharedAreas']);
+Route::get('/services/shared', [ClientController::class, 'sharedServices']);

@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react"
 import httpClient from "../config/axios"
-import { Client } from "../interfaces/Interfaces"
+import { Area, Client, Service } from "../interfaces/Interfaces"
 import Modal from 'react-modal';
 import { Create } from "../modals/Create";
-import { AxiosError } from "axios";
 import { Update } from "../modals/Update";
 
 const customStyles = {
@@ -21,10 +20,13 @@ export const Dashboard = () => {
 
     const token = localStorage.getItem('AUTH_TOKEN')
     const [clients, setClients] = useState<Client[]>([])
+    const [areas, setAreas] = useState<Area[]>([])
+    const [services, setServices] = useState<Service[]>([])
     const [modalCreate, setModalCreate] = useState(false);
     const [modalUpdate, setModalUpdate] = useState(false);
     const [clientUpdate, setClientUpdate] = useState<Client | null>(null)
     const [setsharedArea, setSetsharedArea] = useState('')
+    const [setSharedService, setSetSharedService] = useState('')
 
     // Modal Create
     const openModalCreate = () => {
@@ -36,7 +38,7 @@ export const Dashboard = () => {
     }
 
     const handleClientCreation = (newClient: Client) => {
-        setTimeout(() => {setClients([...clients, newClient]);}, 2000)
+        setTimeout(() => { setClients([...clients, newClient]); }, 2000)
     };
     // End Create
 
@@ -50,11 +52,35 @@ export const Dashboard = () => {
     }
     // End Update
 
+    // Areas
+    const getAreas = async () => {
+        const { data } = await httpClient.get('/api/areas', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        setAreas(data.data)
+    }
+
+    // Service
+    const getServices = async () => {
+        const { data } = await httpClient.get('/api/services', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        setServices(data.data)
+    }
+
     // Shared
 
     const sharedArea = async () => {
-        const { data } = await httpClient.get(`http://localhost:8000/api/areas/shared?area=${setsharedArea}`)
-        console.log(data.clients)
+        const { data } = await httpClient.get(`/api/areas/shared?area=${setsharedArea}`)
+        setClients(data.clients)
+    }
+
+    const sharedService = async () => {
+        const { data } = await httpClient.get(`/api/services/shared?service=${setSharedService}`)
         setClients(data.clients)
     }
 
@@ -82,6 +108,9 @@ export const Dashboard = () => {
 
     useEffect(() => {
         sharedArea()
+        sharedService()
+        getAreas()
+        getServices()
     }, [])
 
     return (
@@ -90,13 +119,23 @@ export const Dashboard = () => {
                 <div className='d-flex justify-content-between  mt-5'>
                     <div className="d-flex gap-3 ">
                         <div className="d-flex">
-                            <input className="form-control me-2" type="search" placeholder="Insert Area" aria-label="Search" value={setsharedArea} onChange={(e) => setSetsharedArea(e.target.value)} />
+                            <select className="form-select" value={setsharedArea} onChange={(e) => setSetsharedArea(e.target.value)}>
+                                <option value="">Areas</option>
+                                {areas.map(area => (
+                                    <option value={area.name} key={area.id}>{area.name}</option>
+                                ))}
+                            </select>
                             <button className="btn btn-outline-success" type="submit" onClick={sharedArea}>Shared</button>
                         </div>
 
                         <div className="d-flex">
-                            <input className="form-control me-2" type="search" placeholder="Insert Services" aria-label="Search" value={setsharedArea} onChange={(e) => setSetsharedArea(e.target.value)} />
-                            <button className="btn btn-outline-success" type="submit" onClick={sharedArea}>Shared</button>
+                            <select className="form-select" value={setSharedService} onChange={(e) => setSetSharedService(e.target.value)}>
+                                <option value="">Service</option>
+                                {services.map(service => (
+                                    <option value={service.name} key={service.id}>{service.name}</option>
+                                ))}
+                            </select>
+                            <button className="btn btn-outline-success" type="submit" onClick={sharedService}>Shared</button>
                         </div>
                     </div>
                     <button className='btn btn-success' onClick={openModalCreate}>

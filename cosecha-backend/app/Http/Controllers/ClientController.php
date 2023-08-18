@@ -205,6 +205,24 @@ class ClientController extends Controller
     {
         $searchQuery = $request->input('service');
 
-        $service = Service::where('name', 'LIKE', '%' . $searchQuery . '%');
+        $service = Service::where('name', 'LIKE', '%' . $searchQuery . '%')->get();
+        $serviceId = $service->pluck('id');
+
+        $clientService = Client::whereIn('service_id', $serviceId)->get();
+
+        foreach ($clientService as $client) {
+            $service = Service::find($client->service_id);
+            $local = Location::find($client->location_id);
+            $area = Area::find($client->area_id);
+            $client->service_id = $service ? $service->name : null;
+            $client->location_id = $local ? $local->name : null;
+            $client->area_id = $area ? $area->name : null;
+        }
+        
+        return new JsonResponse([
+            'status' => 200,
+            'msg' => 'Search results',
+            'clients' => $clientService
+        ]);
     }
 }
