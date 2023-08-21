@@ -179,7 +179,7 @@ class ClientController extends Controller
 
     public function sharedAreas(Request $request)
     {
-        $searchQuery = $request->input('area'); 
+        $searchQuery = $request->input('area');
 
         $areas = Area::where('name', 'LIKE', '%' . $searchQuery . '%')->get();
         $areasId = $areas->pluck('id');
@@ -218,7 +218,7 @@ class ClientController extends Controller
             $client->location_id = $local ? $local->name : null;
             $client->area_id = $area ? $area->name : null;
         }
-        
+
         return new JsonResponse([
             'status' => 200,
             'msg' => 'Search results',
